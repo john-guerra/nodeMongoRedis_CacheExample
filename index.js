@@ -1,6 +1,10 @@
 import { MongoClient } from "mongodb";
 import { createClient } from "redis";
 
+
+const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost:27017";
+const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
+
 let EXPIRATION_TIME = 60; // 60 seconds
 async function getStudentsFromCache(className) {
   const client = await createClient()
@@ -65,11 +69,12 @@ async function saveStudentsToCache(className, students) {
 }
 
 async function getStudentsFromMongo(className) {
+  console.log("connecting to mongo on ", MONGO_URL);
   const filter = {
     className: className,
   };
 
-  const client = await MongoClient.connect("mongodb://localhost:27017/");
+  const client = await MongoClient.connect(MONGO_URL);
   const coll = client.db("nodeRedisCacheExample").collection("Students");
   const cursor = coll.find(filter);
   const students = await cursor.toArray();
