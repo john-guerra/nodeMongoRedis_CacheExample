@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "init": "mongoimport -h localhost:37017 -d nodeRedisCacheExample -c Students --file ./data/students.csv --type csv --headerline",
+    "init": "mongoimport -h localhost:27017 -d nodeRedisCacheExample -c Students --file ./data/students.csv --type csv --headerline",
     "start": "node index.js"
   },
   "keywords": [],
