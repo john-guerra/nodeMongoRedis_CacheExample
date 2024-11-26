@@ -6,7 +6,7 @@ A basic example on how to implement a cache with redis. The index.js file tries 
 
 ```bash
 npm install
-npm init
+npm run init
 npm start
 ```
 
