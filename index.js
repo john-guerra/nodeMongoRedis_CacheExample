@@ -6,9 +6,7 @@ const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 
 let EXPIRATION_TIME = 60; // 60 seconds
 async function getStudentsFromCache(className) {
-  const client = await createClient({
-    url: REDIS_URL,
-  })
+  const client = await createClient()
     .on("error", (err) => console.log("Redis Client Error", err))
     .connect();
 
@@ -51,9 +49,7 @@ async function saveStudentsToCache(className, students) {
     return studentKey;
   }
 
-  const client = await createClient({
-    url: REDIS_URL,
-  })
+  const client = await createClient()
     .on("error", (err) => console.log("Redis Client Error", err))
     .connect();
 
@@ -90,6 +86,8 @@ async function getStudentsFromMongo(className) {
 async function getStudents(className) {
   let students = [];
   console.log("Checking if the resource is in the cache", className);
+
+  let before = performance.now();
   // Returns false if the students are not in the cache
   students = await getStudentsFromCache(className);
   if (!students) {
@@ -97,12 +95,25 @@ async function getStudents(className) {
       "🚫 Resource not found in the cache, checking mongo",
       className
     );
+    before = performance.now();
     students = await getStudentsFromMongo(className);
-    console.log("Resource found in mongo", className, students.length);
+    console.log(
+      "🏋🏼‍♀️ Resource found in Mongo",
+      className,
+      students.length,
+      " took: ",
+      performance.now() - before
+    );
 
     await saveStudentsToCache(className, students);
   } else {
-    console.log("👍 Resource found in the cache", className, students.length);
+    console.log(
+      "👍 Resource found in the cache",
+      className,
+      students.length,
+      " took:",
+      performance.now() - before
+    );
   }
   return students;
 }
@@ -120,15 +131,15 @@ async function cleanupCache() {
 }
 
 let before = performance.now();
-await cleanupCache();
-console.log("🧹 Cache cleaned in", performance.now() - before);
+// await cleanupCache();
+// console.log("🧹 Cache cleaned in", performance.now() - before);
 
 before = performance.now();
 // Get the studnets for the first time (not in cache)
 await getStudents("Web Development");
-console.log("🚀 Students fetched from mongo in", performance.now() - before);
+console.log("Students fetched in ", performance.now() - before);
 
 before = performance.now();
 // Get the students for the second time, it should be in the cache
 await getStudents("Web Development");
-console.log("⚽️ Students fetched from cache in", performance.now() - before);
+console.log("⚽️ Students fetched in", performance.now() - before);
