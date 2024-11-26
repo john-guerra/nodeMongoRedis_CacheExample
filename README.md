@@ -1,6 +1,6 @@
 # nodeMongoRedis_CacheExample
 
-A basic example on how to implement a cache with redis
+A basic example on how to implement a cache with redis. The index.js file tries to load a students database from nodeRedisCacheExample.Students, and load it into a redis Cache. Then it compares the running times of two queries.
 
 ## Usage
 
