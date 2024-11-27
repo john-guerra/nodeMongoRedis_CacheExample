@@ -12,7 +12,10 @@ async function getStudentsFromCache(className) {
 
   let key = `students:${className}`;
 
+  // Check if the the students are the in the cache e.g. students:Web Development:cached
   const exists = await client.get(key + ":cached");
+
+  console.log("🔍 Checking if the cache is valid", key + ":cached", exists);
 
   try {
     if (exists) {
@@ -55,13 +58,23 @@ async function saveStudentsToCache(className, students) {
 
   let key = `students:${className}`;
 
+  let before = performance.now();
+  client.del(key); // Deletes the list of students
   try {
     for (let student of students) {
       const studentKey = await saveStudent(student);
       await client.rPush(key, studentKey);
     }
+    
+    // Thist string tells us if the cache is valid or not
     await client.set(key + ":cached", 1, { EX: EXPIRATION_TIME }); // 60 seconds cache
-    console.log("🧸 Students saved to cache total", students.length);
+    console.log("Setting the cache for", key + ":cached");
+    console.log(
+      "🧸 Students saved to cache total",
+      students.length,
+      " Took: ",
+      performance.now() - before
+    );
   } finally {
     await client.disconnect();
   }
